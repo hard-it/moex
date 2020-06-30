@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Котировки</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="js/slick.css"/>
+		<link rel="stylesheet" href="js/bootstrap.min.css">
+		<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+		<script src="js/slick.min.js"></script>
+		<style>
+			.slick-vertical{
+				width:80%;
+				border-radius:10px;
+				box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px 1px;
+				text-align:center;
+				margin: 20px auto;
+				padding:10px 0;
+			}
+			.col-md-3{
+				width: 25%;
+				float: left;
+				border-right: 1px dashed #000
+			}
+			.name{
+				font-weight:bold
+			}
+			.percent{
+				display:inline-block;
+				padding-left:10px
+			}
+			.percent.green{
+				color: green
+			}
+			.percent.red{
+				color: red
+			}
+		</style>
+		<script>
+			 $(function(){
+				$('.slick-vertical').slick({
+					vertical: true,
+					verticalSwiping: true,
+					slidesToShow: 1,
+					autoplay: true,
+					arrows:false
+				});
+			});
+			$(function(){
+				let arr = ['GAZP', 'AFLT', 'ALRS', 'MOEX', 'SBER', 'VTBR', 'HYDR', 'MGNT', 'LKOH', 'MRKK', 'NVTK', 'SNGSP', 'MTSS', 'YNDX', 'RUAL', 'ROSN']; // Обозначение компании
+				let size = 4;
+				let subarr = [];
+				for (let i = 0; i <Math.ceil(arr.length/size); i++){
+					subarr[i] = arr.slice((i*size), (i*size) + size);
+				}
+				$.each(subarr, function(index, value){
+					$.each(value, function(index, company) {
+						$.getJSON('https://iss.moex.com/iss/engines/stock/markets/shares/securities/'+company+'.json', function(json) {
+							let name = json.securities.data[0][2];
+							let price = json.marketdata.data.filter(function(arr){ return ['TQBR', 'TQTF'].indexOf(arr[1]) !== -1; })[0][12];
+							let percent = json.marketdata.data.filter(function(arr){ return ['TQBR', 'TQTF'].indexOf(arr[1]) !== -1; })[0][25];
+							if(percent < 0){
+								$(`.item-${index}`).append("<div class='col-md-3'><div class='name'>" + name + "</div><div><span class='price'>"+ price +"</span><span class='percent red'>"+ percent +"%</span></div>");
+							}else{
+								$(`.item-${index}`).append("<div class='col-md-3'><div class='name'>" + name + "</div><div><span class='price'>"+ price +"</span><span class='percent green'>"+ percent +"%</span></div>");
+							}
+						});
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+    	<div class="slick-vertical">
+			<div class="row item-0"></div>
+			<div class="row item-1"></div>
+			<div class="row item-2"></div>
+			<div class="row item-3"></div>
+		</div>
+	</body>
+</html>
+
+
